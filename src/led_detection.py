@@ -5,14 +5,21 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+# init cvbridge
 bridge = CvBridge()
-# RED hsv treshold boundaries
-rLower1 = numpy.array([0,204,60],dtype = "uint8")
-rLower2 = numpy.array([170,204,60],dtype = "uint8")
-rUpper1 = numpy.array([10,255,127],dtype = "uint8")
-rUpper2 = numpy.array([180,255,127],dtype = "uint8")
-# QUALCOSALTRO hsv treshold boundaries
 
+'''
+HERE GOES ALL PARAMETERS 
+'''
+
+# stop light = purple
+# front light = green
+# purple hsv treshold boundaries
+rLower1 = numpy.array([0,204,60],dtype = "uint8")
+rUpper1 = numpy.array([10,255,127],dtype = "uint8")
+# green hsv treshold boundaries
+rLower2 = numpy.array([170,204,60],dtype = "uint8")
+rUpper2 = numpy.array([180,255,127],dtype = "uint8")
 # treshold detection of mean value
 tresholdDetection = 10
 # suppose you will always find lights in the low part of image
@@ -34,6 +41,11 @@ croppedPublish = rospy.Publisher("cropped_image",Image,queue_size=10)
 notTassellatedPublish = rospy.Publisher("led_detector_not_tassellated",Image,queue_size=10)
 tassellatedPublish = rospy.Publisher("led_detector_tassellated",Image,queue_size=10)
 controlPublish = rospy.Publisher("redmask_detection_topic",String,queue_size=10)
+
+'''
+END PARAMETERS
+'''
+
 def detector():
 	rospy.init_node('led_detector',anonymous=True)
 	rospy.Subscriber("slow_image_topic",Image,callback)
