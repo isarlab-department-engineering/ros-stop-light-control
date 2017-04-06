@@ -1,0 +1,5 @@
+<launch>
+
+	<node pkg="led_control" name="emitter" type="led_emitter.py" launch-prefix="sudo"/>
+
+</launch>
