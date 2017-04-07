@@ -37,7 +37,7 @@ ysectors = 10
 ysectordim = (xmax-xmin)/xsectors
 xsectordim = (ymax-ymin)/ysectors
 # ros variables
-# controlPublish = rospy.Publisher("redmask_detection_topic",String,queue_size=10)
+ledControlPublish = rospy.Publisher("led_control_topic",String,queue_size=10)
 # debbuging topic
 croppedPublish = rospy.Publisher("cropped_image",Image,queue_size=10)
 notTassellatedPurplePublish = rospy.Publisher("led_detector_purple_not_tassellated",Image,queue_size=10)

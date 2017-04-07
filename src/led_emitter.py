@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-#import necessary libraries
+# import necessary libraries
 import sys, time, rospy
 import RPi.GPIO as gpio
 from std_msgs.msg import String
 
-#LED configuration
+# LED configuration
 RED_PIN		= 38
 GREEN_PIN	= 40
 BLUE_PIN	= 35
