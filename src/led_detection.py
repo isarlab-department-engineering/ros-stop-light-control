@@ -14,7 +14,7 @@ HERE GOES ALL PARAMETERS
 # stop light = purple
 # front light = green
 # purple hsv treshold boundaries
-purpleLower = numpy.array([120,240,50],dtype = "uint8")
+purpleLower = numpy.array([125,240,50],dtype = "uint8")
 purpleUpper = numpy.array([145,255,155],dtype = "uint8")
 # green hsv treshold boundaries
 greenLower = numpy.array([60,200,60],dtype = "uint8")
