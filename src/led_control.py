@@ -11,21 +11,31 @@ from std_msgs.msg import String
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 
 # define variables
+flag = 0 # tonerà utile lo so 
 mh = Adafruit_MotorHAT(addr=0x60)
 m1 = mh.getMotor(1)
 m2 = mh.getMotor(2)
-speed = 150
-motor1Balance = 0
-motor2Balance = 0
-m1.setSpeed(speed+motor1Balance)
-m2.setSpeed(speed+motor2Balance)
 
 def turnOffMotors():
 	mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
 	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
 
+def setSpeed(motor1,motor2):
+	if(motor1==0 && motor2==0):
+		turnOffMotors()
+	else:
+		m1.setSpeed(motor1)
+		m2.stetSpeed(motor2)
+
+def manovraDiversiva(): # trovare un nome migliore
+	turnOffMotors()
+
 def callback(data):
-	rospy.loginfo(rospy.get_caller_id())
+	rospy.loginfo(rospy.get_caller_id() +" Led control String received: %s",data.data)
+	if(data.data == "stop"):
+		turnOffMotors()
+	else if(data.data == "front"):
+		manovraDiversiva()
 	
 def led_control():
 	rospy.init_node('led_control',anonymous=True)
