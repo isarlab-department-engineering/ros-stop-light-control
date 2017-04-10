@@ -21,25 +21,28 @@ def turnOffMotors():
 	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
 
 def setSpeed(motor1,motor2):
-	if(motor1==0 && motor2==0):
+	if(motor1 == 0 && motor2 == 0):
 		turnOffMotors()
 	else:
 		m1.setSpeed(motor1)
 		m2.stetSpeed(motor2)
 
-def manovraDiversiva(): # trovare un nome migliore
-	turnOffMotors()
+def avoidVehicle(): 
+	turnOffMotors
+	flag = 0 
 
 def callback(data):
 	rospy.loginfo(rospy.get_caller_id() +" Led control String received: %s",data.data)
 	if(data.data == "stop"):
 		turnOffMotors()
-	else if(data.data == "front"):
-		manovraDiversiva()
+	else if(data.data == "front" && flag == 0):
+		avoidVehicle()
+		# until avoiding flag is high
+		flag = 1
 	
 def led_control():
 	rospy.init_node('led_control',anonymous=True)
-	rospy.Subscriber('led_control_public',String,callback)
+	rospy.Subscriber('led_control_topic',String,callback)
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:

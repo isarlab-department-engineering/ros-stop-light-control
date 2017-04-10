@@ -90,6 +90,7 @@ def callback(data):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
 			 if(purpleMask[y][x][0] > tresholdPurpleDetection):
 				rospy.loginfo("FOUND PURPLE")
+				ledControlPublish.publish("stop")
 				break
 		else:
 			continue
@@ -99,6 +100,7 @@ def callback(data):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
 			 if(greenMask[y][x][0] > tresholdGreenDetection):
 				rospy.loginfo("FOUND GREEN")
+				ledControlPublish.publish("front")
 				break
 		else:
 			continue
