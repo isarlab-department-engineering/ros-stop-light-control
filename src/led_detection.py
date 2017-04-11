@@ -14,19 +14,21 @@ HERE GOES ALL PARAMETERS
 # stop light = purple
 # front light = green
 # purple hsv treshold boundaries
-purpleLower = numpy.array([125,240,50],dtype = "uint8")
+purpleLower = numpy.array([125,180,50],dtype = "uint8")
 purpleUpper = numpy.array([145,255,155],dtype = "uint8")
 # green hsv treshold boundaries
 greenLower = numpy.array([60,200,60],dtype = "uint8")
 greenUpper = numpy.array([70,255,155],dtype = "uint8")
 # treshold detection of mean value
-tresholdPurpleDetection = 10
-tresholdGreenDetection = 10
+tresholdPurpleDetection = 100
+tresholdGreenDetection = 100
+purpleSectors = 20
+greenSectors = 20
 # suppose you will always find lights in the low part of image
 # image have 160*128 resolution
 # treshold for crop image
-ymin = 70
-ymax = 120
+ymin = 88
+ymax = 118
 xmin = 30
 xmax = 130
 # variables for sectors
@@ -34,8 +36,8 @@ xmax = 130
 xsectors = 20
 ysectors = 10
 # dimension of sectors
-ysectordim = (xmax-xmin)/xsectors
-xsectordim = (ymax-ymin)/ysectors
+xsectordim = (xmax-xmin)/xsectors
+ysectordim = (ymax-ymin)/ysectors
 # ros variables
 ledControlPublish = rospy.Publisher("led_control_topic",String,queue_size=10)
 # debbuging topic
@@ -89,19 +91,24 @@ def callback(data):
 	for y in range(ysectordim/2,ymax-ymin,ysectordim):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
 			 if(purpleMask[y][x][0] > tresholdPurpleDetection):
-				rospy.loginfo("FOUND PURPLE")
-				ledControlPublish.publish("stop")
-				break
+				count = count + 1
+				if count > purpleSectors:
+					rospy.loginfo("FOUND PURPLE")
+					ledControlPublish.publish("stop")
+					break
 		else:
 			continue
 		break
+	count = 0
 	# search green led in calulcated sectors
 	for y in range(ysectordim/2,ymax-ymin,ysectordim):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
 			 if(greenMask[y][x][0] > tresholdGreenDetection):
-				rospy.loginfo("FOUND GREEN")
-				ledControlPublish.publish("front")
-				break
+				count = count + 1
+				if count > greenSectors:
+					rospy.loginfo("FOUND GREEN")
+					ledControlPublish.publish("front")
+					break
 		else:
 			continue
 		break
