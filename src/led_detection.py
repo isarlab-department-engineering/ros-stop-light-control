@@ -23,7 +23,7 @@ greenUpper = numpy.array([70,255,155],dtype = "uint8")
 tresholdPurpleDetection = 10
 tresholdGreenDetection = 10
 # suppose you will always find lights in the low part of image
-# image have 160*120 resolution
+# image have 160*128 resolution
 # treshold for crop image
 ymin = 70
 ymax = 120
