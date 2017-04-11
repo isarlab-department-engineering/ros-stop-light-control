@@ -11,7 +11,7 @@ from std_msgs.msg import String
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 
 # define variables
-flag = 0 # tonerà utile lo so 
+flag = 0 # tonera utile lo so 
 mh = Adafruit_MotorHAT(addr=0x60)
 m1 = mh.getMotor(1)
 m2 = mh.getMotor(2)
@@ -21,7 +21,7 @@ def turnOffMotors():
 	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
 
 def setSpeed(motor1,motor2):
-	if(motor1 == 0 && motor2 == 0):
+	if motor1 == 0 and motor2 == 0:
 		turnOffMotors()
 	else:
 		m1.setSpeed(motor1)
@@ -33,9 +33,9 @@ def avoidVehicle():
 
 def callback(data):
 	rospy.loginfo(rospy.get_caller_id() +" Led control String received: %s",data.data)
-	if(data.data == "stop"):
+	if data.data == "stop" :
 		turnOffMotors()
-	else if(data.data == "front" && flag == 0):
+	elif data.data == "front" and flag == 0:
 		avoidVehicle()
 		# until avoiding flag is high
 		flag = 1
