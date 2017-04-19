@@ -24,6 +24,7 @@ tresholdPurpleDetection = 100
 tresholdGreenDetection = 100
 purpleSectors = 20
 greenSectors = 20
+count = 0
 # suppose you will always find lights in the low part of image
 # image have 160*128 resolution
 # treshold for crop image
@@ -60,6 +61,7 @@ def detector():
 
 def callback(data):
    try:
+	global count
 	rospy.loginfo(rospy.get_caller_id()+"Received an image")
 	# import cv image
 	cvImage = bridge.imgmsg_to_cv2(data)
@@ -87,6 +89,7 @@ def callback(data):
 			for i in range(y*ysectordim,(y+1)*ysectordim):
 				for j in range(x*xsectordim,(x+1)*xsectordim):
 					greenMask[i][j] = mean
+	count = 0
 	# search purple led in calulcated sectors
 	for y in range(ysectordim/2,ymax-ymin,ysectordim):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
@@ -99,7 +102,7 @@ def callback(data):
 		else:
 			continue
 		break
-	count = 0
+	count = 0 
 	# search green led in calulcated sectors
 	for y in range(ysectordim/2,ymax-ymin,ysectordim):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
