@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# add at exit stop light
+# add configuration for commone cathode / commone anode diode
+
 # import necessary libraries
 import sys, time, rospy
 import RPi.GPIO as gpio
@@ -31,16 +34,16 @@ def emitter():
 def callback(data):
 	if(data.data == "forward"): # turn on green and turn off purple when the car goes forward
 		rospy.loginfo("turn on green lights")
-		gpio.output(FRONT_GREEN1,gpio.LOW)
-		gpio.output(FRONT_GREEN2,gpio.LOW)
+		gpio.output(FRONT_GREEN1,gpio.HIGH)
+		gpio.output(FRONT_GREEN2,gpio.HIGH)
 		gpio.output(REAR_BLUE1,gpio.HIGH)
 		gpio.output(REAR_BLUE2,gpio.HIGH)
 	if(data.data == "stop"): # turn off green and turn on purple when car stops
 		rospy.loginfo("turn on blue lights")
 		gpio.output(REAR_BLUE1,gpio.LOW)
 		gpio.output(REAR_BLUE2,gpio.LOW)
-		gpio.output(FRONT_GREEN1,gpio.HIGH)
-		gpio.output(FRONT_GREEN2,gpio.HIGH)
+		gpio.output(FRONT_GREEN1,gpio.LOW)
+		gpio.output(FRONT_GREEN2,gpio.LOW)
 
 if __name__ == '__main__':
 	try:
