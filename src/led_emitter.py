@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-# add at exit stop light
-# add configuration for commone cathode / commone anode diode
-
 # import necessary libraries
-import sys, time, rospy
+import sys, time, rospy, atexit
 import RPi.GPIO as gpio
 from std_msgs.msg import String
 
@@ -13,6 +10,13 @@ FRONT_GREEN1	= 21
 FRONT_GREEN2	= 20
 REAR_BLUE1	= 19
 REAR_BLUE2	= 16
+
+@atexit.register
+def turnOffLights():
+	gpio.output(REAR_BLUE1,gpio.HIGH)
+	gpio.output(REAR_BLUE2,gpio.HIGH)
+	gpio.output(FRONT_GREEN1,gpio.LOW)
+	gpio.output(FRONT_GREEN2,gpio.LOW)
 
 def emitter():
 	# set up and initialize led 
@@ -32,14 +36,14 @@ def emitter():
 		print("Shutting down")
 
 def callback(data):
-	if(data.data == "forward"): # turn on green and turn off purple when the car goes forward
-		rospy.loginfo("turn on green lights")
+	if(data.data == "stop"): # turn on blue and turn off green when the car stops
+		rospy.loginfo("turn on blue lights")
 		gpio.output(FRONT_GREEN1,gpio.HIGH)
 		gpio.output(FRONT_GREEN2,gpio.HIGH)
 		gpio.output(REAR_BLUE1,gpio.HIGH)
 		gpio.output(REAR_BLUE2,gpio.HIGH)
-	if(data.data == "stop"): # turn off green and turn on purple when car stops
-		rospy.loginfo("turn on blue lights")
+	if(data.data == "forward"): # turn off purple and turn on green when car goes forward
+		rospy.loginfo("turn on green lights")
 		gpio.output(REAR_BLUE1,gpio.LOW)
 		gpio.output(REAR_BLUE2,gpio.LOW)
 		gpio.output(FRONT_GREEN1,gpio.LOW)
