@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# this node will be deprecated in favour of a detection that use services and not topic
+# the new version will use geometry/twist message and not String 
+# the new version will communicate directly with master node
+
 from __future__ import print_function
 import sys,rospy,cv2, numpy, roslib
 from std_msgs.msg import String

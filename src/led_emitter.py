@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# this node will be implemented in rospibot_network node
+
 # import necessary libraries
 import sys, time, rospy, atexit
 import RPi.GPIO as gpio

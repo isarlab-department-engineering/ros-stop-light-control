@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# this node will be implemented on the master node
+
 # this is a test script for drive motor 
 # in function of stop and front lights detection
 # this script will be implemented in another node 
