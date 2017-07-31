@@ -130,7 +130,7 @@ if __name__ == "__main__":
 	except rospy.ROSInterruptException:
 		pass
 
-"""
+'''
 how send informations 
 
 		rospy.wait_for_service('stop')
@@ -139,4 +139,4 @@ how send informations
 
 	except rospy.ServiceException, e:
 		print "Service error"
-"""
+'''

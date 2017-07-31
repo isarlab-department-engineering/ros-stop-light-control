@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>led_control</name>
+  <name>stop_detection</name>
   <version>0.0.3</version>
   <description>Package that controls led emission and individuation</description>
 
