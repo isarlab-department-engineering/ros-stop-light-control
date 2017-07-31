@@ -4,10 +4,12 @@ import rospy,sys,cv2,numpy,roslib
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist 
-from ros-stop-light-control.srv import * 
+from stop_detection.srv import * 
 
 # init cvbridge
 bridge = CvBridge()
+# define message
+stopmotor = Twist()
 
 ''' 
 HERE GOES ALL PARAMETERS 
@@ -26,6 +28,13 @@ tresholdGreenDetection = 100
 purpleSectors = 20
 greenSectors = 20
 count = 0
+# set stop motor message
+stopmotor.linear.x=0
+stopmotor.linear.y=0
+stopmotor.linear.z=0
+stopmotor.angular.x=0
+stopmotor.angular.y=0
+stopmotor.angular.z=0
 # suppose you will always find lights in the low part of image
 # image have 160*128 resolution
 # treshold for crop image
@@ -40,8 +49,9 @@ ysectors = 10
 # dimension of sectors
 xsectordim = (xmax-xmin)/xsectors
 ysectordim = (ymax-ymin)/ysectors
-# ros variables
-ledControlPublish = rospy.Publisher("led_control_topic",String,queue_size=10)
+# ros variables 
+# !!!!!! change in services system
+# deprecated ledControlPublish = rospy.Publisher("led_control_topic",String,queue_size=10)
 # debbuging topic
 croppedPublish = rospy.Publisher("cropped_image",Image,queue_size=10)
 notTassellatedPurplePublish = rospy.Publisher("led_detector_purple_not_tassellated",Image,queue_size=10)
@@ -55,6 +65,11 @@ END PARAMETERS
 def detector():
 	rospy.init_node('led_detector',anonymous=True)
 	rospy.Subscriber("slow_image_topic",Image,callback)
+	rospy.wait_for_service('stop')
+	try:
+		stop_service = rospy.ServiceProxy('stop',StopService)
+	except rospy.ServiceException, e:
+		rospy.loginfo("service error")
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
@@ -65,7 +80,7 @@ def detector():
 
 def callback(data):
    try:
-	global count
+	global count, stopmotor
 	rospy.loginfo(rospy.get_caller_id()+"Received an image")
 	# import cv image
 	cvImage = bridge.imgmsg_to_cv2(data)
@@ -101,7 +116,8 @@ def callback(data):
 				count = count + 1
 				if count > purpleSectors:
 					rospy.loginfo("FOUND PURPLE")
-					ledControlPublish.publish("stop")
+					if(stop_service(stopmotor) == True):
+						rospy.loginfo("Information received")
 					break
 		else:
 			continue
@@ -114,7 +130,8 @@ def callback(data):
 				count = count + 1
 				if count > greenSectors:
 					rospy.loginfo("FOUND GREEN")
-					ledControlPublish.publish("front")
+					if(stop_service(stopmotor) == True):
+						rospy.loginfo("Information received")
 					break
 		else:
 			continue
@@ -129,14 +146,3 @@ if __name__ == "__main__":
 		detector()
 	except rospy.ROSInterruptException:
 		pass
-
-'''
-how send informations 
-
-		rospy.wait_for_service('stop')
-	try:
-		stop_service = rospy.ServiceProxy('stop',StopService)
-
-	except rospy.ServiceException, e:
-		print "Service error"
-'''
