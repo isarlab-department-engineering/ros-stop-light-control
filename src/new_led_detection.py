@@ -3,8 +3,8 @@
 import rospy,sys,cv2,numpy,roslib
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from stop_detection.srv import * 
-from stop_detection.msg import Twist 
+from duckie_master.srv import * 
+from geometry_msgs.msg import Twist 
 
 # init cvbridge
 bridge = CvBridge()
