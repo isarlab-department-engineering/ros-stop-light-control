@@ -27,11 +27,14 @@ tresholdBlueDetection = 100
 tresholdGreenDetection = 100
 blueSectors = 20
 greenSectors = 20
-count = 0
-# after frameCounter frame send information via service
-frameCounter = 0
+frameCount = 0
+# after foundCounter frame send information via service
+foundCounter = 0
+notFoundCounter = 0
 frameThreshold = 5
-# flag for spotted light 
+# flag for spotted light and not spotted light
+spottedLight = False
+notSpottedLight = True
 # set stop motor message
 stopmotor.linear.x=0
 stopmotor.linear.y=0
@@ -66,8 +69,10 @@ END PARAMETERS
 '''
 
 def detector():
+	spottedLight = False
+	notSpottedLight = True
 	rospy.init_node('led_detector',anonymous=True)
-	rospy.Subscriber("slow_image_topic",Image,callback)
+	rospy.Subscriber("image_topic",Image,callback,queue_size=1)
 	rospy.loginfo("wait for service")
 	rospy.wait_for_service('stop')
 	try:
@@ -81,8 +86,7 @@ def detector():
 
 def callback(data):
    try:
-	global count, stopmotor
-	spottedLight = False
+	global frameCount, stopmotor
 	# import cv image
 	cvImage = bridge.imgmsg_to_cv2(data)
 	# crop image 
@@ -109,45 +113,57 @@ def callback(data):
 			for i in range(y*ysectordim,(y+1)*ysectordim):
 				for j in range(x*xsectordim,(x+1)*xsectordim):
 					greenMask[i][j] = mean
-	count = 0
+	frameCount = 0
 	# search purple led in calulcated sectors
 	for y in range(ysectordim/2,ymax-ymin,ysectordim):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
 			 if(blueMask[y][x][0] > tresholdBlueDetection):
-				count = count + 1
-				if count > blueSectors:
+				frameCount += 1
+				if frameCount > blueSectors:
 					rospy.loginfo("FOUND BLUE")
-					frameCounter += 1
-					if frameCounter == frameThreshold:
+					notSpottedLight = False
+					notFoundCounter = 0
+					foundCounter += 1
+					if foundCounter == frameThreshold:
+						spottedLight = True
 						if(stop_service(stopmotor) == True):
-							spottedLight = True
 							rospy.loginfo("Information received")
 					break
 		else:
 			continue
 		break
-	count = 0 
-	# search green led in calulcated sectors
-	for y in range(ysectordim/2,ymax-ymin,ysectordim):
-		for x in range(xsectordim,xmax-xmin,xsectordim):
-			 if(greenMask[y][x][0] > tresholdGreenDetection):
-				count = count + 1
-				if count > greenSectors:
-					rospy.loginfo("FOUND GREEN")
-					frameCounter += 1
-					if frameCounter == frameThreshold:
-						if(stop_service(stopmotor) == True):
-							spottedLight = True
-							rospy.loginfo("Information received")
-					break
+	else:
+		spottedLight = False
+	frameCount = 0 
+	# search green led in calulcated sectors if not found blue
+	if spottedLight is not True:
+		for y in range(ysectordim/2,ymax-ymin,ysectordim):
+			for x in range(xsectordim,xmax-xmin,xsectordim):
+				 if(greenMask[y][x][0] > tresholdGreenDetection):
+					frameCount = frameCount + 1
+					if frameCount > greenSectors:
+						rospy.loginfo("FOUND GREEN")
+						notSpottedLight = False
+						notFoundCounter = 0
+						foundCounter += 1
+						if foundCounter == frameThreshold:
+							if(stop_service(stopmotor) == True):
+								spottedLight = True
+								rospy.loginfo("Information stop received")
+						break
+			else:
+				continue
+			break
 		else:
-			continue
-		break
-	if spottedLight == True:
-		frameCounter = 0
-		## add control of not found light 
+			notSpottedLight = True
+			foundCounter = 0
+			spottedLight = False
 	tassellatedBluePublish.publish(bridge.cv2_to_imgmsg(blueMask))
 	tassellatedGreenPublish.publish(bridge.cv2_to_imgmsg(greenMask))
+	if notSpottedLight == True:
+		notFoundCounter += 1
+		if notFoundCounter == frameThreshold and stop_service(gomotor):
+			rospy.loginfo("Information go received")
    except CvBridgeError as e:
 	print(e)
 
