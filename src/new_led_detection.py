@@ -28,6 +28,10 @@ tresholdGreenDetection = 100
 blueSectors = 20
 greenSectors = 20
 count = 0
+# after frameCounter frame send information via service
+frameCounter = 0
+frameThreshold = 5
+# flag for spotted light 
 # set stop motor message
 stopmotor.linear.x=0
 stopmotor.linear.y=0
@@ -64,6 +68,7 @@ END PARAMETERS
 def detector():
 	rospy.init_node('led_detector',anonymous=True)
 	rospy.Subscriber("slow_image_topic",Image,callback)
+	rospy.loginfo("wait for service")
 	rospy.wait_for_service('stop')
 	try:
 		rospy.loginfo("Entering ros spin")
@@ -77,6 +82,7 @@ def detector():
 def callback(data):
    try:
 	global count, stopmotor
+	spottedLight = False
 	# import cv image
 	cvImage = bridge.imgmsg_to_cv2(data)
 	# crop image 
@@ -85,17 +91,17 @@ def callback(data):
 	# convert in hsv format
 	hsvImage = cv2.cvtColor(croppedImage,cv2.COLOR_BGR2HSV)
 	# generate red mask to test detection
-	purpleMask = cv2.bitwise_and(hsvImage,hsvImage,mask=cv2.inRange(hsvImage,purpleLower,purpleUpper))
+	blueMask = cv2.bitwise_and(hsvImage,hsvImage,mask=cv2.inRange(hsvImage,blueLower,blueUpper))
 	greenMask = cv2.bitwise_and(hsvImage,hsvImage,mask=cv2.inRange(hsvImage,greenLower,greenUpper))
-	notTassellatedPurplePublish.publish(bridge.cv2_to_imgmsg(purpleMask))
+	notTassellatedBluePublish.publish(bridge.cv2_to_imgmsg(blueMask))
 	notTassellatedGreenPublish.publish(bridge.cv2_to_imgmsg(greenMask))
 	# tassellation of calculated purplemask 	
 	for y in range(ysectors):
 		for x in range(xsectors):
-			mean = numpy.mean(purpleMask[y*ysectordim:(y+1)*ysectordim,x*xsectordim:(x+1)*xsectordim])
+			mean = numpy.mean(blueMask[y*ysectordim:(y+1)*ysectordim,x*xsectordim:(x+1)*xsectordim])
 			for i in range(y*ysectordim,(y+1)*ysectordim):
 				for j in range(x*xsectordim,(x+1)*xsectordim):
-					purpleMask[i][j] = mean
+					blueMask[i][j] = mean
 	# tassellation of calculated greenmask 	
 	for y in range(ysectors):
 		for x in range(xsectors):
@@ -107,12 +113,15 @@ def callback(data):
 	# search purple led in calulcated sectors
 	for y in range(ysectordim/2,ymax-ymin,ysectordim):
 		for x in range(xsectordim,xmax-xmin,xsectordim):
-			 if(purpleMask[y][x][0] > tresholdPurpleDetection):
+			 if(blueMask[y][x][0] > tresholdBlueDetection):
 				count = count + 1
-				if count > purpleSectors:
-					rospy.loginfo("FOUND PURPLE")
-					if(stop_service(stopmotor) == True):
-						rospy.loginfo("Information received")
+				if count > blueSectors:
+					rospy.loginfo("FOUND BLUE")
+					frameCounter += 1
+					if frameCounter == frameThreshold:
+						if(stop_service(stopmotor) == True):
+							spottedLight = True
+							rospy.loginfo("Information received")
 					break
 		else:
 			continue
@@ -125,13 +134,19 @@ def callback(data):
 				count = count + 1
 				if count > greenSectors:
 					rospy.loginfo("FOUND GREEN")
-					if(stop_service(stopmotor) == True):
-						rospy.loginfo("Information received")
+					frameCounter += 1
+					if frameCounter == frameThreshold:
+						if(stop_service(stopmotor) == True):
+							spottedLight = True
+							rospy.loginfo("Information received")
 					break
 		else:
 			continue
 		break
-	tassellatedPurplePublish.publish(bridge.cv2_to_imgmsg(purpleMask))
+	if spottedLight == True:
+		frameCounter = 0
+		## add control of not found light 
+	tassellatedBluePublish.publish(bridge.cv2_to_imgmsg(blueMask))
 	tassellatedGreenPublish.publish(bridge.cv2_to_imgmsg(greenMask))
    except CvBridgeError as e:
 	print(e)
