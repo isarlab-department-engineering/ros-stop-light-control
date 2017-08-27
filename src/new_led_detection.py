@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 bridge = CvBridge()
 # define message
 stopmotor = Twist()
+gomotor = Twist()
 
 ''' 
 HERE GOES ALL PARAMETERS 
@@ -42,6 +43,13 @@ stopmotor.linear.z=0
 stopmotor.angular.x=0
 stopmotor.angular.y=0
 stopmotor.angular.z=0
+# set stop motor message
+gomotor.linear.x=150
+gomotor.linear.y=150
+gomotor.linear.z=0
+gomotor.angular.x=0
+gomotor.angular.y=0
+gomotor.angular.z=0
 # suppose you will always find lights in the low part of image
 # image have 160*128 resolution
 # treshold for crop image
