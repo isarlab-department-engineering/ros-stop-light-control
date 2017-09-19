@@ -81,7 +81,7 @@ def detector():
 	notSpottedLight = True
 	foundCounter = 0
 	rospy.init_node('led_detector',anonymous=True)
-	rospy.Subscriber("image_topic",Image,callback,queue_size=1)
+	rospy.Subscriber("image_topic",Image,callback,queue_size=1,buff_size=2**24)
 	rospy.loginfo("wait for service")
 	rospy.wait_for_service('stop')
 	try:
