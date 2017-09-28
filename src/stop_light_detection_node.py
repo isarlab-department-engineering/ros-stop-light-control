@@ -24,33 +24,26 @@ blueUpper = numpy.array([145,255,155],dtype = "uint8")
 greenLower = numpy.array([60,200,60],dtype = "uint8")
 greenUpper = numpy.array([70,255,155],dtype = "uint8")
 # treshold detection of mean value
-tresholdBlueDetection = 100
-tresholdGreenDetection = 100
+tresholdBlueDetection = 10
+tresholdGreenDetection = 10
 blueSectors = 20
 greenSectors = 20
 frameCount = 0
 # after foundCounter frame send information via service
 foundCounter = 0
 notFoundCounter = 0
-frameThreshold = 5
+frameThreshold = 2
 # flag for spotted light and not spotted light
 spottedLight = False
 notSpottedLight = True
 # set stop motor message
 stopmotor.linear.x=0
 stopmotor.linear.y=0
-stopmotor.linear.z=0
-stopmotor.angular.x=0
-stopmotor.angular.y=0
-stopmotor.angular.z=0
 # set stop motor message
-gomotor.linear.x=150
-gomotor.linear.y=150
-gomotor.linear.z=0
-gomotor.angular.x=0
-gomotor.angular.y=0
-gomotor.angular.z=0
-# suppose you will always find lights in the low part of image
+gomotor.linear.x=1
+gomotor.linear.y=1
+# suppose you will
+# always find lights in the low part of image
 # image have 160*128 resolution
 # treshold for crop image
 ymin = 88
@@ -98,6 +91,7 @@ def callback(data):
 	global frameCount, stopmotor, foundCounter, spottedLight, notSpottedLight, notFoundCounter
 	# import cv image
 	cvImage = bridge.imgmsg_to_cv2(data)
+	cvImage = cv2.resize(cvImage,(0,0),fx=0.5,fy=0.5)
 	# crop image 
 	croppedImage = cvImage[ymin:ymax,xmin:xmax]
 	croppedPublish.publish(bridge.cv2_to_imgmsg(croppedImage))
